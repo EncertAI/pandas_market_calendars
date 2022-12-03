@@ -19,7 +19,7 @@ from datetime import time
 from typing import Literal, Union
 
 import pandas as pd
-from pandas.tseries.offsets import CustomBusinessDay
+from pandas.tseries.offsets import CustomBusinessDay, Hour
 
 from .class_registry import RegisteryMeta, ProtectedDict
 
@@ -798,7 +798,10 @@ class MarketCalendar(metaclass=MarketCalendarMeta):
             mkt_close_ind = cols.get_loc("market_close")
 
             def adjust_closes(x):
-                x[x >= x[mkt_close_ind]] = x[mkt_close_ind]
+                if any(schedule.columns.isin(["pre", "post"])):
+                    x[x >= (x[mkt_close_ind] + Hour(4))] = x[mkt_close_ind] + Hour(4)
+                else:
+                    x[x >= x[mkt_close_ind]] = x[mkt_close_ind]
                 return x
 
             adjusted = schedule.loc[_close_adj].apply(adjust_closes, axis=1, raw=True)

@@ -137,7 +137,7 @@ def test_valid_days():
 
 def test_valid_days_tz_aware():
     calendar = NYSEExchangeCalendar()
-    data_date = dt.datetime.strptime("20250121", "%Y%m%d").astimezone(ZoneInfo("UTC"))
+    data_date = dt.datetime.strptime("20250121", "%Y%m%d").replace(tzinfo=ZoneInfo("UTC"))
     actual = calendar.valid_days(data_date, data_date + dt.timedelta(days=7), tz="UTC")
     expected = pd.bdate_range("2025-01-21", periods=6, tz="UTC")
     assert_index_equal(actual, expected)
