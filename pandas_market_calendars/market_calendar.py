@@ -809,12 +809,14 @@ class MarketCalendar(metaclass=MarketCalendarMeta):
             if _adj_others and len(_close_adj) > 0:
                 mkt_close_ind = cols.get_loc("market_close")
 
-                def adjust_closes(x):
-                    if any(schedule.columns.isin(["pre", "post"])):
-                        x[x >= (x[mkt_close_ind] + Hour(4))] = x[mkt_close_ind] + Hour(4)
-                    else:
-                        x[x >= x[mkt_close_ind]] = x[mkt_close_ind]
-                    return x
+                if any(cols.isin(["pre", "post"])):
+                    def adjust_closes(x):
+                        x[x > (x[mkt_close_ind] + Hour(4))] = x[mkt_close_ind] + Hour(4)
+                        return x
+                else:
+                    def adjust_closes(x):
+                        x[x > x[mkt_close_ind]] = x[mkt_close_ind]
+                        return x
 
                 adjusted = schedule.loc[_close_adj].apply(adjust_closes, axis=1, raw=True)
                 schedule.loc[_close_adj] = adjusted
