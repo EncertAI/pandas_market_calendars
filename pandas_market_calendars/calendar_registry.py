@@ -18,6 +18,7 @@ from .calendars.cme_globex_energy_and_metals import (
 from .calendars.cme_globex_equities import CMEGlobexEquitiesExchangeCalendar
 from .calendars.cme_globex_fx import CMEGlobexFXExchangeCalendar
 from .calendars.cme_globex_fixed_income import CMEGlobexFixedIncomeCalendar
+from .calendars.dukascopy_fx import DukascopyForexExchangeCalendar
 from .calendars.eurex import EUREXExchangeCalendar
 from .calendars.eurex_fixed_income import EUREXFixedIncomeCalendar
 from .calendars.hkex import HKEXExchangeCalendar
