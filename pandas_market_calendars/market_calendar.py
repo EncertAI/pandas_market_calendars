@@ -19,7 +19,7 @@ from datetime import time
 from typing import Literal, Union
 
 import pandas as pd
-from pandas.tseries.offsets import CustomBusinessDay, Hour
+from pandas.tseries.offsets import CustomBusinessDay
 
 from .class_registry import RegisteryMeta, ProtectedDict
 
@@ -948,7 +948,7 @@ class MarketCalendar(metaclass=MarketCalendarMeta):
             below = day.index < timestamp
         else:
             below = day.index <= timestamp
-        return bool(day[below].iat[-1])  # returns numpy.bool_ if not bool(...)
+        return bool(day[below].iat[-1]) if below.any() else True  # returns numpy.bool_ if not bool(...)
 
     # need this to make is_open_now testable
     @staticmethod
