@@ -783,44 +783,32 @@ class MarketCalendar(metaclass=MarketCalendarMeta):
 
             schedule[market_time] = temp
 
-        with warnings.catch_warnings():
-            # Setting values in-place is fine, ignore the warning in Pandas >= 1.5.0
-            # This can be removed, if Pandas 1.5.0 does not need to be supported any longer.
-            # See also: https://stackoverflow.com/q/74057367/859591
-            warnings.filterwarnings(
-                "ignore",
-                category=FutureWarning,
-                message=(
-                    ".*will attempt to set the values inplace instead of always setting a new array. "
-                    "To retain the old behavior, use either.*"
-                ),
-            )
-            cols = schedule.columns
-            if _adj_others and len(_open_adj) > 0:
-                mkt_open_ind = cols.get_loc("market_open")
+        cols = schedule.columns
+        if _adj_others and len(_open_adj) > 0:
+            mkt_open_ind = cols.get_loc("market_open")
 
-                # Can't use Lambdas here since numpy array assignment doesn't return the array.
-                def adjust_opens(x):  # x is an np.Array.
-                    x[x <= x[mkt_open_ind]] = x[mkt_open_ind]
+            # Can't use Lambdas here since numpy array assignment doesn't return the array.
+            def adjust_opens(x):  # x is an np.Array.
+                x[x <= x[mkt_open_ind]] = x[mkt_open_ind]
+                return x
+
+            adjusted = schedule.loc[_open_adj].apply(adjust_opens, axis=1, raw=True)
+            schedule.loc[_open_adj] = adjusted
+
+        if _adj_others and len(_close_adj) > 0:
+            mkt_close_ind = cols.get_loc("market_close")
+
+            if any(cols.isin(["pre", "post"])):
+                def adjust_closes(x):
+                    x[x > (x[mkt_close_ind] + Hour(4))] = x[mkt_close_ind] + Hour(4)
+                    return x
+            else:
+                def adjust_closes(x):
+                    x[x > x[mkt_close_ind]] = x[mkt_close_ind]
                     return x
 
-                adjusted = schedule.loc[_open_adj].apply(adjust_opens, axis=1, raw=True)
-                schedule.loc[_open_adj] = adjusted
-
-            if _adj_others and len(_close_adj) > 0:
-                mkt_close_ind = cols.get_loc("market_close")
-
-                if any(cols.isin(["pre", "post"])):
-                    def adjust_closes(x):
-                        x[x > (x[mkt_close_ind] + Hour(4))] = x[mkt_close_ind] + Hour(4)
-                        return x
-                else:
-                    def adjust_closes(x):
-                        x[x > x[mkt_close_ind]] = x[mkt_close_ind]
-                        return x
-
-                adjusted = schedule.loc[_close_adj].apply(adjust_closes, axis=1, raw=True)
-                schedule.loc[_close_adj] = adjusted
+            adjusted = schedule.loc[_close_adj].apply(adjust_closes, axis=1, raw=True)
+            schedule.loc[_close_adj] = adjusted
 
         if interruptions:
             interrs = self.interruptions_df
