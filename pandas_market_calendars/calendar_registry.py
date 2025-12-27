@@ -1,4 +1,5 @@
 # fmt: off
+# @formatter:off
 from .market_calendar import MarketCalendar
 from .calendars.asx import ASXExchangeCalendar
 from .calendars.bmf import BMFExchangeCalendar
@@ -39,7 +40,9 @@ from .calendars.sse import SSEExchangeCalendar
 from .calendars.tase import TASEExchangeCalendar
 from .calendars.tsx import TSXExchangeCalendar
 from .calendars.mirror import *
+# @formatter:on
 # fmt: on
+
 
 def get_calendar(name, open_time=None, close_time=None) -> MarketCalendar:
     """
