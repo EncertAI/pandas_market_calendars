@@ -19,7 +19,7 @@ from datetime import time
 from typing import Literal, Union
 
 import pandas as pd
-from pandas.tseries.offsets import CustomBusinessDay
+from pandas.tseries.offsets import CustomBusinessDay, Hour
 
 from .class_registry import RegisteryMeta, ProtectedDict
 
